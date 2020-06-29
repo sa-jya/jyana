@@ -26,9 +26,5 @@ public class MessageBox extends JFrame{
 		setSize(300, 100);
 		setVisible(true);
 	}
-	public static void main(String[] args) {
-		new MessageBox();
-		
-
-	}
+	
 }

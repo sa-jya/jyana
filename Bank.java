@@ -6,7 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Scanner;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class Bank extends JFrame{
+	List list;
 	HashMap<String, Integer> hm = new HashMap<String, Integer>();
 	public Bank() {
 		setTitle("Bank");
@@ -49,24 +56,25 @@ public class Bank extends JFrame{
 		left.add(p1); left.add(btn); left.add(p2); left.add(p3); left.add(p4);
 		
 		//오른쪽 화면
-		List lst =new List();
+		 list =new List();
 		//왼쪽, 오른쪽 화면 붙이기
-		add(left); add(lst);
+		add(left); add(list);
 				
 		//계좌생성버튼 클릭
 		btn.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// tfName의 내용을 가져와서 lst에 추가한다.
+				// tfName의 내용을 가져와서 list에 추가한다.
 				if(tfName.getText().isEmpty())return;
-				lst.add(tfName.getText());
+				list.add(tfName.getText());
 				hm.put(tfName.getText(), 0); //맵에 저장
 				tfName.setText("");
+				}
 			}
-		});		
+		);		
 		//예금버튼 클릭
-		lst.addActionListener(new ActionListener() {
+		inputBtn.addActionListener(new ActionListener() {
 			/*
 			 * 1. 리스트에 선택된 계좌 잔액에
 			 * 2. tfMoney 만큼 더해서
@@ -74,17 +82,19 @@ public class Bank extends JFrame{
 			 */					
 			@Override
 				public void actionPerformed(ActionEvent e) {
-				//lst+ tfMoney = tfBalance;
-				String key = lst.getSelectedItem();
-				int balance = hm.get(key);//기존잔액
-				int value = balance+Integer.parseInt(tfMoney.getText());//수정잔액
-				tfBalance.setText(value+"");//화면에서 잔액수정
-				hm.put(key, value);//hm 내용 수정
-				tfMoney.setText("");//편의를 위해 예금
-			
-					
-				
-		
+				//list+ tfMoney = tfBalance;
+				try {
+					String key = list.getSelectedItem();
+					int balance = hm.get(key);//기존잔액
+					int value = balance+Integer.parseInt(tfMoney.getText());//수정잔액
+					tfBalance.setText(value+"");//화면에서 잔액수정
+					hm.put(key, value);//hm 내용 수정
+					tfMoney.setText("");//편의를 위해 예금					
+					}catch(NullPointerException n) {
+					new MessageBox("오류", "계좌를 선택해 주세요");
+						}catch(NumberFormatException e2) {
+							new MessageBox("입력오류", "숫자를 입력하세요");
+						}
 				}
 		});
 		//출금버튼 클릭
@@ -92,33 +102,60 @@ public class Bank extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String key = lst.getSelectedItem();
-				int balance = hm.get(key);//기존잔액
-				int value = balance-Integer.parseInt(tfMoney.getText());//수정잔액
-				if(value<=0) {
-					new MessageBox("잔액부족!!", key+"님 잔액이 부족합니다.");					
-					return;
-				}
-				tfBalance.setText(value+"");//화면에서 잔액수정
-				hm.put(key, value);//hm 내용 수정
-				tfMoney.setText("");//편의를 위해 예금
-				
-				
+				try {
+					String key = list.getSelectedItem().trim();
+					int balance = hm.get(key);//기존잔액
+					int value = balance-Integer.parseInt(tfMoney.getText());//수정잔액
+					if(value<=0) {
+						new MessageBox("잔액부족!!", key+"님 잔액이 부족합니다.");					
+						return;
+					}
+					tfBalance.setText(value+"");//화면에서 잔액수정
+					hm.put(key, value);//hm 내용 수정
+					tfMoney.setText("");//편의를 위해 예금
+					
+				}catch(NullPointerException n) {
+					new MessageBox("오류", "계좌를 선택해 주세요");
+					}catch (NumberFormatException e2) {
+						new MessageBox("입력오류", "숫자를 입력하세요");
+					}			
 			}
 		});
 		
 		
 		
 		//리스트
-		lst.addItemListener(new ItemListener() {
+		list.addItemListener(new ItemListener() {
 			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 			//리스트에서 선택한 이름을 tfName 넣고 잔액은 tfBalance에 넣기
-				String str = lst.getSelectedItem();
+				String str = list.getSelectedItem().trim();//trim() 앞뒤 공백 제거용
 				tfName.setText(str);
 				tfBalance.setText(hm.get(str)+"");
 					
+				
+			}
+		});
+		fileBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File dir = new File("src\\swingtest");
+				File file = new File(dir, "myBank.txt");
+				try {
+					FileWriter fw = new FileWriter(file);
+					Set<String> set = hm.keySet();//key의 집합
+					Iterator<String> it = set.iterator();
+					while(it.hasNext()) {
+						String key = it.next();//하나의 key 구하기
+						fw.write(key+" ");//이름내보내기
+						fw.write(hm.get(key)+"\n");//잔액구하기
+					}
+					fw.close();
+				}catch(IOException e1) {
+					e1.printStackTrace();
+				}
 				
 			}
 		});
@@ -126,6 +163,29 @@ public class Bank extends JFrame{
 		
 		setSize(500, 300);
 		setVisible(true);
+		load();
+	}
+	private void load() {
+		hm.clear();
+		File dir = new File("src\\swingtest");
+		File file = new File(dir,"myBank.txt");
+		try {
+			if(!file.exists()) {
+				file.createNewFile();
+			}
+			Scanner sc = new Scanner(file); //파일로 읽어오기
+			while(sc.hasNext()) {
+				String name =sc.next().trim();//이름
+				int money =sc.nextInt();
+				hm.put(name, money); //맵에 저장
+				list.add(name +"\n"); //리스트에 이름 추가
+			}
+			sc.close();
+		}catch(Exception e) {
+			
+		}
+		
+		
 	}
 	public static void main(String[] args) {
 		new Bank();

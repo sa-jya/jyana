@@ -45,7 +45,7 @@ public class PlayerSwing extends JFrame{
 					Statement st = con.createStatement();
 					ResultSet rs = st.executeQuery(sql);
 					if(rs.next()) {
-						tf[1].setText(rs.getString("num"));
+						tf[1].setText(rs.getString("name"));
 						tf[2].setText(rs.getString("birth"));
 						tf[3].setText(rs.getDouble("height")+"");
 						tf[4].setText(rs.getDouble("weight")+"");
@@ -97,7 +97,7 @@ public class PlayerSwing extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ta.setText("");
-				String sql = "select * from player";
+				String sql = "select * from player order by num";
 				try {
 					Statement st = con.createStatement();
 					ResultSet rs = st.executeQuery(sql);
@@ -179,7 +179,34 @@ public class PlayerSwing extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				ta.setText("");
+				int idx = jcb.getSelectedIndex();
+				String key = "";
+				if(idx==0) {
+					key="name";
+				}else if(idx==1) {
+					key="kind";
+				}
+				
+				String sql = "select * from player where " + key + " like '%" + searchtf.getText() +"%'";
+				try {
+					Statement st = con.createStatement();
+					ResultSet rs = st.executeQuery(sql);
+					while(rs.next()) {
+						ta.append("번호 :"+rs.getInt("num")+"\n");
+						ta.append("이름 :"+rs.getString("name")+"\n");
+						ta.append("생일 :"+rs.getString("birth")+"\n");
+						ta.append("키 :"+rs.getDouble("height")+"\n");
+						ta.append("몸무게 :"+rs.getDouble("weight")+"\n");
+						ta.append("종목 :"+rs.getString("kind")+"\n");
+						ta.append("\n");
+						
+					}
+				}catch (SQLException e1) {
+					// TODO: handle exception
+					e1.printStackTrace();
+				}
+				
 				
 			}
 		});

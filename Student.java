@@ -1,35 +1,65 @@
-package com.exam01;
+package school;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Student implements Serializable{
-	private String name;
-	private String hakg;
-	private String hakn;
-	private double hakp;
-	public Student() {
-		
-	}
-	public Student(String name, String hakg, String hakn, double hakp) {
-		this.name = name;
-		this.hakg = hakg;
-		this.hakn = hakn;
-		this.hakp = hakp;
-		
+
+
+
+
+
+
+public class Student {
+
+	private int studentId;
+	private String studentName;
+	private Subject majorSubject;
+	
+	private ArrayList<Score> scoreList = new ArrayList<Score>();
+	
+	public Student(int studentId, String studentName, Subject korean) {
+		this.studentId = studentId;
+		this.studentName = studentName;
+		this.majorSubject = korean;
 	}
 	
-	public String getName() {
-		return name;
+	public void addSubjectScore(Score score) {
+		scoreList.add(score);
 	}
-	public String getHakg() {
-		return hakg;
+	
+	public int getStudentId() {
+		return studentId;		
 	}
-	public String getHakn() {
-		return hakn;
+	
+	public void setStudentId(int studentId) {
+		this.studentId = studentId;		
 	}
-	public double getHakp() {
-		return hakp;
+	
+	public String getStudentName() {
+		return studentName;		
 	}
+	
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;		
+	}
+	
+	public Subject getMajorSubject() {
+		return majorSubject;		
+	}
+	
+	public void setMajorSubject(Subject majorSubject) {
+		this.majorSubject = majorSubject;		
+	}
+	
+	public ArrayList<Score> getScoreList(){
+		return scoreList;
+	}
+	
+	public void setScoreList(ArrayList<Score> scoreList) {
+		this.scoreList = scoreList;
+	}
+	
+	
+	
 	
 
 }
